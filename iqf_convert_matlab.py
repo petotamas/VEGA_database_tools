@@ -1,6 +1,6 @@
 """
     This script converts VEGA database compatible IQ data frames with ".iqf" 
-    extendsion to MATLAB interpretable files ".mat" files
+    extendsion to MATLAB interpretable ".mat" files
     The converted MATLAB data file contains both the IQ header and the 
     multichannel IQ data sections.
     
