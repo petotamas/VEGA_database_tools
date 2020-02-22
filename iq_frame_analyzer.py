@@ -134,11 +134,10 @@ if en_sync_analysis:
 
     unique, counts = np.unique(delay_sync_flags, return_counts=True)
     d = dict(zip(unique, counts))
-    logging.info("Delay sync statistics [lost/total]:  [{:d}/{:d}]".format(d[0],d[0]+d[1]))
-    
-    unique, counts = np.unique(iq_sync_flags, return_counts=True)
-    d = dict(zip(unique, counts))
-    logging.info("IQ sync statistics [lost/total]:  [{:d}/{:d}]".format(d[0],d[0]+d[1]))    
+    try:
+        logging.info("Delay sync statistics [lost/total]:  [{:d}/{:d}]".format(d[0],d[0]+d[1]))
+    except KeyError:
+        logging.info("Delay sync statistics [lost/total]:  [{:d}/{:d}]".format(0,d[1]))
 
 if en_overdrive_analysis:    
      # Figure 6: Overdrive flags vs file index
