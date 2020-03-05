@@ -153,16 +153,17 @@ c = 299792458
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
-vega_measurement_path= "/media/petot/IQStorage0/VEGAM20191219K4C0S7"
+vega_measurement_path=  "/home/petot/WD/Vega/VEGAM20191225HR7C0S0"
+#"/media/petot/IQStorage0/VEGAM20191219K4C0S7"
 
-center_frequency = 634 *10 **6 # [Hz]
+center_frequency = 90.3 *10**6 #634 *10 **6 # [Hz]
 
 # -> Rx, Tx positions
 # Elevation: Above Sea Level + Above Ground Level
-radar_lat = 47.393033
-radar_lon = 19.287338
+radar_lat = 46.678105 #47.393033
+radar_lon = 18.423188 # 19.287338
 radar_ele = 103 + 3 # [m]
-radar_bearing = 113 # [deg]
+radar_bearing = 81 #111 + 6#113 # [deg]
 
 # Illuminator of Opportuniy #1
 lat_Szechenyi_hegy = 47.49166667
@@ -179,9 +180,14 @@ lat_Szava_utca = 47.46861111
 long_Szava_utca = 19.12638889
 ele_Szava_utca = 115 + 107
 
-ioo_lat = lat_Szava_utca
-ioo_lon = long_Szava_utca
-ioo_ele = ele_Szava_utca
+# Illuminator of Opportunity #4
+lat_uzd = 46.5911111
+long_uzd = 18.5791667
+ele_uzd = 204 + 94
+
+ioo_lat = lat_uzd
+ioo_lon = long_uzd
+ioo_ele = ele_uzd
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
 #-----MANDATORY PROCESSING PARAMETERS-----MANDATORY PROCESSING PARAMETERS-----
@@ -272,10 +278,26 @@ for target_index, target_gpx_file in enumerate(fr24_csv_files):
                                              'formats': (np.int, 'U15', 'U15', np.int, np.int, np.int)})
 
     target_reference_data=[]
-    for row in ref_target_track_csv:    
+    first_row_flag  = 0
+    last_row_index  = 0
+    
+    for row_index, row in enumerate(ref_target_track_csv):    
         if row[0] >= start_time_stamp and row[0] <= stop_time_stamp:
+            if first_row_flag == 0:
+                first_row_flag = 1
+                row_f = ref_target_track_csv[row_index-1]
+                target_reference_data.append([row_f[0],float(row_f[1][1:]), float(row_f[2][:-1]), row_f[3], row_f[4], row_f[5]])
+                
             target_reference_data.append([row[0],float(row[1][1:]), float(row[2][:-1]), row[3], row[4], row[5]])
-
+            
+            # Store the last row index. 
+            # It will be used later to extend the overlaid time interval with plus 1 data row from the reference data
+            if last_row_index < row_index:
+                last_row_index = row_index
+    # Extend overlaid time interval
+    row = ref_target_track_csv[last_row_index+1]
+    target_reference_data.append([row[0],float(row[1][1:]), float(row[2][:-1]), row[3], row[4], row[5]])
+                
     if len(target_reference_data)==0:
         logging.warning("Reference data can not be extracted for target ID: {:d}".format(target_index))
     else:        
@@ -348,5 +370,6 @@ for target_index, target_gpx_file in enumerate(fr24_csv_files):
         fname = os.path.join(target_info_path, ref_track_fname_temp+str(target_index)+".trt")
         np.savetxt(fname, target_ref_track)
 logging.info("Target reference track generation finished")
+
 
 
